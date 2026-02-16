@@ -26,6 +26,20 @@ export const MOTORCYCLE_SPECS = {
         stockStroke: 48.8,
         stockRollerWeight: 0, // Manual transmission
         type: 'underbone'
+    },
+    'yamaha-aerox-155': {
+        name: 'Yamaha Aerox 155',
+        stockBore: 58.0,
+        stockStroke: 58.7,
+        stockRollerWeight: 13,
+        type: 'scooter'
+    },
+    'yamaha-nmax-155': {
+        name: 'Yamaha NMAX 155',
+        stockBore: 58.0,
+        stockStroke: 58.7,
+        stockRollerWeight: 13,
+        type: 'scooter'
     }
 } as const;
 

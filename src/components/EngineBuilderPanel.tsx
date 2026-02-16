@@ -10,6 +10,7 @@ export default function EngineBuilderPanel() {
   const [customBore, setCustomBore] = useState<number>(MOTORCYCLE_SPECS[selectedBikeId].stockBore)
   const [customStroke, setCustomStroke] = useState<number>(MOTORCYCLE_SPECS[selectedBikeId].stockStroke)
   const [selectedBlockId, setSelectedBlockId] = useState<string>('stock')
+  const [selectedCamId, setSelectedCamId] = useState<string>('stock')
   
   // CVT State
   const [rollerWeight, setRollerWeight] = useState<number>(MOTORCYCLE_SPECS[selectedBikeId].stockRollerWeight)
@@ -23,6 +24,7 @@ export default function EngineBuilderPanel() {
      setCustomStroke(MOTORCYCLE_SPECS[selectedBikeId].stockStroke)
      setRollerWeight(MOTORCYCLE_SPECS[selectedBikeId].stockRollerWeight)
      setSelectedBlockId('stock')
+     setSelectedCamId('stock')
   }, [selectedBikeId])
 
   const displacement = useMemo(() => {
@@ -31,8 +33,14 @@ export default function EngineBuilderPanel() {
 
   const estimatedPower = useMemo(() => {
       const type = customBore > bike.stockBore ? 'street' : 'stock'
-      return estimatePower(displacement, type)
-  }, [displacement, customBore, bike.stockBore])
+      let basePower = estimatePower(displacement, type)
+      
+      // Cam bonus
+      if (selectedCamId === 'jvt-s1-cam') basePower += 1.5
+      if (selectedCamId === 'mtrt-evo-cam') basePower += 3.2
+      
+      return basePower.toFixed(1)
+  }, [displacement, customBore, bike.stockBore, selectedCamId])
 
   const percentGain = useMemo(() => {
       const stockCc = calculateDisplacement(bike.stockBore, bike.stockStroke)
@@ -126,6 +134,41 @@ export default function EngineBuilderPanel() {
                                <div className="text-right">
                                    <span className="text-xs font-mono text-accent-400 block">{part.priceRange}</span>
                                    <span className="text-[10px] text-tech-500">+{Math.round(((part.specs.bore! - bike.stockBore)/bike.stockBore)*100)}% Area</span>
+                               </div>
+                           </div>
+                       </div>
+                   ))}
+               </div>
+            </div>
+
+            {/* Camshaft Selection */}
+            <div className="border border-tech-700 bg-tech-800/30 p-4">
+               <label className="tech-label mb-2 text-accent-400">Step 2: Performance Camshaft</label>
+               <div className="space-y-2">
+                   <div 
+                        onClick={() => setSelectedCamId('stock')}
+                        className={`cursor-pointer p-2 border ${selectedCamId === 'stock' ? 'border-accent-500 bg-accent-500/10' : 'border-tech-700 hover:border-tech-500'} transition-all`}
+                   >
+                       <div className="flex justify-between items-center">
+                           <span className="text-sm font-bold text-slate-200">Stock Camshaft</span>
+                           <span className="text-xs font-mono text-tech-500">Standard Lift</span>
+                       </div>
+                   </div>
+                   
+                   {CATALOG_PARTS.filter(p => p.type === 'cam').map(part => (
+                       <div 
+                            key={part.id}
+                            onClick={() => setSelectedCamId(part.id)}
+                            className={`cursor-pointer p-2 border ${selectedCamId === part.id ? 'border-accent-500 bg-accent-500/10' : 'border-tech-700 hover:border-tech-500'} transition-all`}
+                       >
+                           <div className="flex justify-between items-center">
+                               <div>
+                                   <span className="text-sm font-bold text-slate-200 block">{part.brand} {part.name}</span>
+                                   <span className="text-[10px] text-tech-400">Lift: {part.specs.lift}</span>
+                               </div>
+                               <div className="text-right">
+                                   <span className="text-xs font-mono text-primary-400 block">{part.priceRange}</span>
+                                   <span className="text-[10px] text-tech-500">{part.id === 'mtrt-evo-cam' ? 'Race Spec' : 'Touring'}</span>
                                </div>
                            </div>
                        </div>
